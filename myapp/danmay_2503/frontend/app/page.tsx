@@ -30,7 +30,7 @@ export default function Page() {
               <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
             </Link>
             <p>
-              Don't have an Account?
+              Don&apos;t have an Account?
               <Link href={"/signup"} className="text-blue-500 font-semibold">
                 {" "}
                 Sign Up
