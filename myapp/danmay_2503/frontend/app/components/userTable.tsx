@@ -1,7 +1,7 @@
 "use client";
 
 interface UserTableProps {
-  users: [];
+  users: any[];
   onEdit: (userId: string) => void;
   onDelete: (userId: string) => void;
   deleteLoading: boolean;
