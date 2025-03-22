@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useAllUsers } from "@/app/hooks/useAllUsers";
-import { useEditUser } from "@/app/hooks/useEditUser";
 import { useDeleteUser } from "@/app/hooks/useDeleteUser";
 import { useNotification } from "@/app/hooks/useNotification";
 import Notification from "@/app/components/notification";
