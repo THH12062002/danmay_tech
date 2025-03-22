@@ -1,49 +1,108 @@
 "use client";
 
-import React from "react";
-import { useUsers } from "@/app/hooks/useUsers";
+import React, { useState } from "react";
+import { useAllUsers } from "@/app/hooks/useAllUsers";
+import { useEditUser } from "@/app/hooks/useEditUser";
+import { useDeleteUser } from "@/app/hooks/useDeleteUser";
+import { useNotification } from "@/app/hooks/useNotification";
+import Notification from "@/app/components/notification";
+import EditFormDialog from "@/app/components/editFormDialog";
+import ConfirmDialog from "@/app/components/confirmDialog";
+import UserTable from "@/app/components/userTable";
 
 const AdminTable = () => {
-  const { users, loading, error } = useUsers();
+  const { users, loading, error, refetch } = useAllUsers(); // Lấy danh sách user
+  const [editDialog, setEditDialog] = useState<{
+    isOpen: boolean;
+    userId: string | null;
+  }>({
+    isOpen: false,
+    userId: null,
+  }); // Trạng thái form chỉnh sửa
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    userId: string | null;
+  }>({ isOpen: false, userId: null }); // Trạng thái confirm dialog
+  const { notification, showNotification, clearNotification } =
+    useNotification(); // Hook thông báo
+
+  const { handleDeleteUser, loading: deleteLoading } = useDeleteUser(); // Hook xóa user
 
   if (loading) return <p>Loading ...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
+  const openEditDialog = (userId: string) => {
+    setEditDialog({ isOpen: true, userId }); // Mở dialog chỉnh sửa
+  };
+
+  const closeEditDialog = () => {
+    setEditDialog({ isOpen: false, userId: null }); // Đóng dialog chỉnh sửa
+  };
+
+  const openConfirmDialog = (userId: string) => {
+    setConfirmDialog({ isOpen: true, userId }); // Mở dialog xác nhận
+  };
+
+  const closeConfirmDialog = () => {
+    setConfirmDialog({ isOpen: false, userId: null }); // Đóng dialog xác nhận
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDialog.userId) return;
+
+    try {
+      await handleDeleteUser(confirmDialog.userId);
+      refetch(); // Cập nhật danh sách user
+      closeConfirmDialog(); // Đóng dialog
+      showNotification("Success", "User deleted successfully!", "success");
+    } catch (err: any) {
+      showNotification(
+        "Error",
+        err.message || "Failed to delete user.",
+        "error"
+      );
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-        <thead className="bg-gray-200 text-gray-700">
-          <tr>
-            <th className="px-4 py-2 text-left font-medium">Full name</th>
-            <th className="px-4 py-2 text-left font-medium">Email</th>
-            <th className="px-4 py-2 text-left font-medium">Role</th>
-            <th className="px-4 py-2 text-left font-medium">Status</th>
-            <th className="px-4 py-2 text-left font-medium">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user: any) => (
-            <tr
-              key={user.id}
-              className="border-t border-gray-200 hover:bg-gray-100"
-            >
-              <td className="px-4 py-2">{user.full_name}</td>
-              <td className="px-4 py-2">{user.email}</td>
-              <td className="px-4 py-2">
-                {user.is_superuser ? "Admin" : "User"}
-              </td>
-              <td className="px-4 py-2 text-green-600">
-                {user.is_active ? "Active" : "Inactive"}
-              </td>
-              <td className="px-4 py-2">
-                <button className="px-3 py-1 text-sm text-white bg-blue-500 rounded hover:bg-blue-600">
-                  Edit
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <UserTable
+        users={users}
+        onEdit={openEditDialog}
+        onDelete={openConfirmDialog}
+        deleteLoading={deleteLoading}
+      />
+
+      {/* Hiển thị form chỉnh sửa */}
+      <EditFormDialog
+        isOpen={editDialog.isOpen}
+        userId={editDialog.userId}
+        onClose={closeEditDialog}
+        onSaveSuccess={() => {
+          refetch(); // Cập nhật danh sách user
+          showNotification("Success", "User updated successfully!", "success");
+        }}
+      />
+
+      {/* Hiển thị confirm dialog */}
+      {confirmDialog.isOpen && (
+        <ConfirmDialog
+          title="Confirm Delete"
+          message="Are you sure you want to delete this user? This action cannot be undone."
+          onConfirm={handleDelete}
+          onCancel={closeConfirmDialog}
+        />
+      )}
+
+      {/* Hiển thị thông báo */}
+      {notification && (
+        <Notification
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+          onClose={clearNotification}
+        />
+      )}
     </div>
   );
 };

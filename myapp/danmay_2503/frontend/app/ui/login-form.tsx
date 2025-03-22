@@ -11,7 +11,7 @@ import { Button } from "@/app/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/app/services/authService";
-import Cookies from "js-cookie";
+import { getCurrentUser } from "../services/userService";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -30,8 +30,16 @@ export default function LoginForm() {
     setIsPending(true);
 
     try {
-      await login(formData); // Gọi hàm login từ auth.ts
-      router.push("/dashboard"); // Chuyển hướng đến dashboard
+      const token = await login(formData); // Gọi hàm login từ auth.ts
+
+      // Call Api get current user
+      const user = await getCurrentUser(token);
+
+      if (user.is_superuser) {
+        router.push("/dashboard");
+      } else {
+        router.push("user");
+      }
     } catch (error: any) {
       setErrorMessage(error.message || "An error occurred");
     } finally {
