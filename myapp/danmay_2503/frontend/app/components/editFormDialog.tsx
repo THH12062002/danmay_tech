@@ -40,7 +40,10 @@ const EditFormDialog: React.FC<EditFormDialogProps> = ({
     }
   }, [data]);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (
+    field: string,
+    value: string | number | boolean | null | undefined
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

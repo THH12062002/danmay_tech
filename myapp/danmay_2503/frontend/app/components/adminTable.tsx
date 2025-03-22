@@ -54,12 +54,14 @@ const AdminTable = () => {
       refetch(); // Cập nhật danh sách user
       closeConfirmDialog(); // Đóng dialog
       showNotification("Success", "User deleted successfully!", "success");
-    } catch (err: any) {
-      showNotification(
-        "Error",
-        err.message || "Failed to delete user.",
-        "error"
-      );
+    } catch (err: unknown) {
+      let errorMessage = "Failed to delete user.";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      showNotification("Error", errorMessage, "error");
     }
   };
 
