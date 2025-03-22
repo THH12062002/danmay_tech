@@ -8,8 +8,11 @@ import {
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signUp } from "@/app/services/authService";
 
 const SignUpForm = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -37,25 +40,12 @@ const SignUpForm = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/v1/users/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            full_name: formData.full_name,
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Signup Failed");
-      }
+      // Gọi hàm signUp từ auth.ts
+      await signUp({
+        full_name: formData.full_name,
+        email: formData.email,
+        password: formData.password,
+      });
 
       // Nếu thành công
       setSuccess("Signup successful! Please log in.");
@@ -65,6 +55,10 @@ const SignUpForm = () => {
         password: "",
         confirm_password: "",
       });
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 800);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -85,7 +79,6 @@ const SignUpForm = () => {
             name="full_name"
             value={formData.full_name}
             onChange={handleChange}
-            required
             placeholder="Fullname"
             className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-balance outline-2 placeholder:text-gray-500"
           />
