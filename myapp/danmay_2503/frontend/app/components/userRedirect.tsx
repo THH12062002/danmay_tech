@@ -13,7 +13,7 @@ const UserRedirect = () => {
       if (user.is_superuser) {
         router.push("/dashboard"); // Chuyển hướng admin đến /dashboard
       } else {
-        router.push("/user"); // Chuyển hướng user đến /user
+        router.push("/home"); // Chuyển hướng user đến /user
       }
     }
   }, [user, loading, router]);

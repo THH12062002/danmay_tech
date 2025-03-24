@@ -38,7 +38,7 @@ export default function LoginForm() {
       if (user.is_superuser) {
         router.push("/dashboard");
       } else {
-        router.push("user");
+        router.push("/home");
       }
     } catch (error: any) {
       setErrorMessage(error.message || "An error occurred");
